@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rate Comparison Calculator</title>
+  <title>Transaction Fee Comparison Calculator</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <style>
     body {
@@ -38,7 +38,7 @@
       font-size: 16px;
       color: #515154;
     }
-    input {
+    input[type="text"], input[type="number"] {
       width: 150px;
       padding: 10px;
       font-size: 16px;
@@ -102,6 +102,15 @@
       line-height: 1.4;
       margin-top: 5px;
     }
+    .hint {
+      font-size: 11px;
+      color: #86868b;
+      margin-top: 2px;
+    }
+    .rate {
+      font-size: 16px;
+      font-weight: 500;
+    }
     p {
       font-size: 16px;
       margin-bottom: 10px;
@@ -118,44 +127,64 @@
       display: block;
       margin: 20px auto;
     }
+    .input-table input[type="number"] {
+      width: 100px;
+      margin: 0;
+    }
+    .input-table input[type="checkbox"] {
+      margin-right: 10px;
+    }
   </style>
 </head>
 <body>
-  <h1>Rate Comparison Calculator</h1>
+  <h1>Transaction Fee Comparison Calculator</h1>
 
-  <!-- Inputs with Merchant Name Added -->
+  <!-- General Inputs -->
   <div class="section">
     <h2>General Inputs</h2>
     <label>Merchant Name:</label>
     <input type="text" id="merchantName" placeholder="e.g., ABC Restaurant"><br>
-    <label>Customer Daily GMV ($):</label>
+    <label>Daily Credit Card GMV ($):</label>
     <input type="number" id="gmv" value="10000"><br>
   </div>
 
+  <!-- Rate Input Table -->
   <div class="section">
-    <h2>Your Proposed Rates (%)</h2>
-    <label>SME Rate:</label>
-    <input type="number" step="0.1" id="smeRate" value="1.5"><br>
-    <label>Dine-in Rate:</label>
-    <input type="number" step="0.1" id="dineinRate" value="2"><br>
-    <label>Fast Food Rate:</label>
-    <input type="number" step="0.1" id="fastfoodRate" value="1.7"><br>
-  </div>
-
-  <div class="section">
-    <h2>Competitor Rates & Ratios</h2>
-    <label>Local Card SME Rate (%):</label>
-    <input type="number" step="0.1" id="localSmeRate" value="1.3"><br>
-    <label>Local Card Dine-in Rate (%):</label>
-    <input type="number" step="0.1" id="localDineinRate" value="2.1"><br>
-    <label>Local Card Fast Food Rate (%):</label>
-    <input type="number" step="0.1" id="localFastfoodRate" value="1.5"><br>
-    <label>Oversea Card Rate (All) (%):</label>
-    <input type="number" step="0.1" id="overseaRate" value="3"><br>
-    <label>Local Card Ratio (%):</label>
-    <input type="number" id="localRatio" value="70"><br>
-    <label>Oversea Card Ratio (%):</label>
-    <input type="number" id="overseaRatio" value="30"><br>
+    <h2>Rates & Ratios</h2>
+    <table class="input-table">
+      <tr>
+        <th>Category</th>
+        <th>OpenRice Rate (%)</th>
+        <th>Payment Vendor Local Card Rate (%)</th>
+      </tr>
+      <tr>
+        <td><input type="checkbox" id="smeCheck" checked> SME Rate</td>
+        <td><input type="number" step="0.01" id="smeRate" value="1.5"></td>
+        <td><input type="number" step="0.01" id="localSmeRate" value="1.3"></td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" id="dineinCheck" checked> Dine-in Rate</td>
+        <td><input type="number" step="0.01" id="dineinRate" value="2"></td>
+        <td><input type="number" step="0.01" id="localDineinRate" value="2.1"></td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" id="fastfoodCheck" checked> Fast Food Rate</td>
+        <td><input type="number" step="0.01" id="fastfoodRate" value="1.7"></td>
+        <td><input type="number" step="0.01" id="localFastfoodRate" value="1.5"></td>
+      </tr>
+      <tr>
+        <td colspan="2">Payment Vendor Oversea Card Rate (%):</td>
+        <td><input type="number" step="0.01" id="overseaRate" value="3"></td>
+      </tr>
+      <tr>
+        <td colspan="2">Local Card Ratio (%):</td>
+        <td><input type="number" step="0.01" id="localRatio" value="70"></td>
+      </tr>
+      <tr>
+        <td colspan="2">Oversea Card Ratio (%):</td>
+        <td><input type="number" step="0.01" id="overseaRatio" value="30"></td>
+      </tr>
+    </table>
   </div>
 
   <button onclick="calculateAll()">Calculate</button>
@@ -199,47 +228,49 @@
         competitorDailyMDR: competitorDailyMDR.toFixed(2),
         competitorAnnualMDR: competitorAnnualMDR.toFixed(2),
         savings: savings.toFixed(2),
-        proposedRate: (proposedRate * 100).toFixed(1),
-        blendedRate: blendedRate.toFixed(1),
-        localRate: (localRate * 100).toFixed(1),
-        overseaRate: (overseaRate * 100).toFixed(1),
-        localRatio: (localRatio * 100).toFixed(0),
-        overseaRatio: (overseaRatio * 100).toFixed(0)
+        proposedRate: (proposedRate * 100).toFixed(2),
+        blendedRate: blendedRate.toFixed(2),
+        localRate: (localRate * 100).toFixed(2),
+        overseaRate: (overseaRate * 100).toFixed(2),
+        localRatio: (localRatio * 100).toFixed(2),
+        overseaRatio: (overseaRatio * 100).toFixed(2)
       };
     }
 
     function generateTable(gmv, result, category, merchantName) {
       const blendedRateDetailsEn = `
         <div class="details">
-          Blended Rate = (Local Card Rate × Local Ratio) + (Oversea Card Rate × Oversea Ratio)<br>
-          = (${result.localRate}% × ${result.localRatio}%) + (${result.overseaRate}% × ${result.overseaRatio}%)<br>
-          = ${(result.localRate * result.localRatio / 100).toFixed(1)}% + ${(result.overseaRate * result.overseaRatio / 100).toFixed(1)}%<br>
-          = ${result.blendedRate}%
+          <div>Local Card Rate ${result.localRate}% × Local Card Ratio ${result.localRatio}%</div>
+          <div>Oversea Card Rate ${result.overseaRate}% × Oversea Card Ratio ${result.overseaRatio}%</div>
         </div>
       `;
       const blendedRateDetailsCn = `
         <div class="details">
-          混合費率 = (本地卡費率 × 本地卡比例) + (海外卡費率 × 海外卡比例)<br>
-          = (${result.localRate}% × ${result.localRatio}%) + (${result.overseaRate}% × ${result.overseaRatio}%)<br>
-          = ${(result.localRate * result.localRatio / 100).toFixed(1)}% + ${(result.overseaRate * result.overseaRatio / 100).toFixed(1)}%<br>
-          = ${result.blendedRate}%
+          <div>本地卡費率 ${result.localRate}% × 本地卡比例 ${result.localRatio}%</div>
+          <div>海外卡費率 ${result.overseaRate}% × 海外卡比例 ${result.overseaRatio}%</div>
         </div>
       `;
 
       return `
         <!-- English Version -->
         <p>Merchant Name: ${merchantName || 'N/A'}</p>
-        <p>Customer Daily GMV: $${gmv.toLocaleString()}</p>
+        <p>Daily Credit Card GMV: $${gmv.toLocaleString()}</p>
         <table>
           <tr>
             <th>Metric</th>
-            <th>Your Proposal</th>
-            <th>Competitor</th>
+            <th>OpenRice</th>
+            <th>Current Payment Vendor</th>
           </tr>
           <tr>
             <td>Rate (%)</td>
-            <td>${result.proposedRate}%</td>
-            <td>${result.blendedRate}% ${blendedRateDetailsEn}</td>
+            <td>
+              <div class="rate">${result.proposedRate}%</div>
+              <div class="hint">Same charge rate for local & overseas cards</div>
+            </td>
+            <td>
+              <div class="rate">${result.blendedRate}%</div>
+              ${blendedRateDetailsEn}
+            </td>
           </tr>
           <tr>
             <td>Daily MDR Charge ($)</td>
@@ -252,7 +283,7 @@
             <td>$${result.competitorAnnualMDR}</td>
           </tr>
           <tr>
-            <td>Merchant Saves ($)</td>
+            <td>Merchant Saves ($/yr)</td>
             <td colspan="2" class="highlight">$${result.savings}</td>
           </tr>
         </table>
@@ -260,17 +291,23 @@
         <!-- Traditional Chinese Translation -->
         <div class="translation">
           <p>商家名稱: ${merchantName || '無'}</p>
-          <p>客戶每日GMV: $${gmv.toLocaleString()}</p>
+          <p>信用卡營業額日GMV: $${gmv.toLocaleString()}</p>
           <table>
             <tr>
               <th>指標</th>
-              <th>您的建議</th>
-              <th>競爭對手</th>
+              <th>OpenRice</th>
+              <th>現在支付供應商</th>
             </tr>
             <tr>
               <td>費率 (%)</td>
-              <td>${result.proposedRate}%</td>
-              <td>${result.blendedRate}% ${blendedRateDetailsCn}</td>
+              <td>
+                <div class="rate">${result.proposedRate}%</div>
+                <div class="hint">本地及海外卡統一費率</div>
+              </td>
+              <td>
+                <div class="rate">${result.blendedRate}%</div>
+                ${blendedRateDetailsCn}
+              </td>
             </tr>
             <tr>
               <td>每日MDR費用 ($)</td>
@@ -283,7 +320,7 @@
               <td>$${result.competitorAnnualMDR}</td>
             </tr>
             <tr>
-              <td>商家節省 ($)</td>
+              <td>商家每年節省 ($)</td>
               <td colspan="2" class="highlight">$${result.savings}</td>
             </tr>
           </table>
@@ -293,32 +330,38 @@
 
     function calculateAll() {
       const merchantName = document.getElementById("merchantName").value;
-      const gmv = Number(document.getElementById("gmv").value);
-      const smeRate = Number(document.getElementById("smeRate").value);
-      const dineinRate = Number(document.getElementById("dineinRate").value);
-      const fastfoodRate = Number(document.getElementById("fastfoodRate").value);
-      const localSmeRate = Number(document.getElementById("localSmeRate").value);
-      const localDineinRate = Number(document.getElementById("localDineinRate").value);
-      const localFastfoodRate = Number(document.getElementById("localFastfoodRate").value);
-      const overseaRate = Number(document.getElementById("overseaRate").value);
-      const localRatio = Number(document.getElementById("localRatio").value);
-      const overseaRatio = Number(document.getElementById("overseaRatio").value);
+      const gmv = Number(document.getElementById("gmv").value) || 0;
 
-      const smeResult = calculate(gmv, smeRate, localSmeRate, overseaRate, localRatio, overseaRatio);
-      document.getElementById("smeResults").innerHTML = generateTable(gmv, smeResult, "SME", merchantName);
+      const smeCheck = document.getElementById("smeCheck").checked;
+      const dineinCheck = document.getElementById("dineinCheck").checked;
+      const fastfoodCheck = document.getElementById("fastfoodCheck").checked;
 
-      const dineinResult = calculate(gmv, dineinRate, localDineinRate, overseaRate, localRatio, overseaRatio);
-      document.getElementById("dineinResults").innerHTML = generateTable(gmv, dineinResult, "Dine-in", merchantName);
+      const smeRate = Number(document.getElementById("smeRate").value) || 0;
+      const dineinRate = Number(document.getElementById("dineinRate").value) || 0;
+      const fastfoodRate = Number(document.getElementById("fastfoodRate").value) || 0;
+      const localSmeRate = Number(document.getElementById("localSmeRate").value) || 0;
+      const localDineinRate = Number(document.getElementById("localDineinRate").value) || 0;
+      const localFastfoodRate = Number(document.getElementById("localFastfoodRate").value) || 0;
+      const overseaRate = Number(document.getElementById("overseaRate").value) || 0;
+      const localRatio = Number(document.getElementById("localRatio").value) || 0;
+      const overseaRatio = Number(document.getElementById("overseaRatio").value) || 0;
 
-      const fastfoodResult = calculate(gmv, fastfoodRate, localFastfoodRate, overseaRate, localRatio, overseaRatio);
-      document.getElementById("fastfoodResults").innerHTML = generateTable(gmv, fastfoodResult, "Fast Food", merchantName);
+      document.getElementById("smeResults").innerHTML = smeCheck
+        ? generateTable(gmv, calculate(gmv, smeRate, localSmeRate, overseaRate, localRatio, overseaRatio), "SME", merchantName)
+        : "";
+      document.getElementById("dineinResults").innerHTML = dineinCheck
+        ? generateTable(gmv, calculate(gmv, dineinRate, localDineinRate, overseaRate, localRatio, overseaRatio), "Dine-in", merchantName)
+        : "";
+      document.getElementById("fastfoodResults").innerHTML = fastfoodCheck
+        ? generateTable(gmv, calculate(gmv, fastfoodRate, localFastfoodRate, overseaRate, localRatio, overseaRatio), "Fast Food", merchantName)
+        : "";
     }
 
     function exportToPDF() {
       const merchantName = document.getElementById("merchantName").value || "Merchant";
       const element = document.createElement("div");
       element.innerHTML = `
-        <h1 style="text-align: center;">Rate Comparison Report for ${merchantName}</h1>
+        <h1 style="text-align: center;">Transaction Fee Comparison Report for ${merchantName}</h1>
         ${document.getElementById("smeResults").innerHTML}
         ${document.getElementById("dineinResults").innerHTML}
         ${document.getElementById("fastfoodResults").innerHTML}
@@ -326,7 +369,7 @@
 
       const opt = {
         margin: 0.5,
-        filename: `${merchantName}_Rate_Comparison.pdf`,
+        filename: `${merchantName}_Transaction_Fee_Comparison.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2 },
         jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
