@@ -1,382 +1,444 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-HK">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Transaction Fee Comparison Calculator</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <title>專業報價單 - 交易手續費比較</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
+    :root {
+      --primary-color: #1a237e;
+      --secondary-color: #303f9f;
+      --accent-color: #c62828;
+      --text-color: #333;
+      --light-bg: #f8f9fa;
+      --border-color: #e0e0e0;
+      --success-color: #2e7d32;
+    }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
-      max-width: 1000px;
-      margin: 40px auto;
-      background: #f5f5f7;
-      color: #1d1d1f;
-      line-height: 1.5;
-    }
-    h1 {
-      font-size: 32px;
-      font-weight: 600;
-      text-align: center;
-      margin-bottom: 40px;
-    }
-    h2 {
-      font-size: 20px;
-      font-weight: 500;
-      color: #515154;
-    }
-    .section {
-      background: #ffffff;
-      border-radius: 18px;
+      font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #f0f2f5;
+      color: var(--text-color);
+      margin: 0;
       padding: 20px;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 40px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      border-radius: 8px;
+    }
+
+    /* Header Section */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 3px solid var(--primary-color);
+      padding-bottom: 20px;
       margin-bottom: 30px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
-    label {
-      display: inline-block;
-      width: 220px;
-      font-size: 16px;
-      color: #515154;
+
+    .company-info h1 {
+      color: var(--primary-color);
+      margin: 0;
+      font-size: 28px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
+
+    .quotation-label {
+      text-align: right;
+    }
+
+    .quotation-label h2 {
+      margin: 0;
+      color: var(--accent-color);
+      font-size: 32px;
+      font-weight: bold;
+    }
+
+    /* Form Section */
+    .input-section {
+      background: var(--light-bg);
+      padding: 25px;
+      border-radius: 6px;
+      margin-bottom: 30px;
+      border: 1px solid var(--border-color);
+    }
+
+    .input-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group label {
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: #555;
+    }
+
     input[type="text"], input[type="number"] {
-      width: 150px;
-      padding: 10px;
-      font-size: 16px;
-      border: 1px solid #d2d2d7;
-      border-radius: 10px;
-      background: #fafafa;
-      margin-bottom: 15px;
-      transition: border-color 0.2s;
+      padding: 10px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      font-size: 15px;
+      transition: border-color 0.3s;
     }
+
     input:focus {
       outline: none;
-      border-color: #007aff;
-      box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
+      border-color: var(--secondary-color);
+      box-shadow: 0 0 0 2px rgba(48, 63, 159, 0.1);
     }
-    button {
-      background: linear-gradient(135deg, #007aff, #005bb5);
-      color: #fff;
-      padding: 12px 24px;
-      border: none;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-      margin: 10px;
-    }
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
-    }
-    table {
+
+    /* Table Styling */
+    .rate-table {
       width: 100%;
-      border-collapse: separate;
-      border-spacing: 0;
-      margin-top: 15px;
-      background: #fff;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      border-collapse: collapse;
+      margin-bottom: 20px;
     }
-    th, td {
-      padding: 12px 16px;
+
+    .rate-table th {
+      background-color: var(--primary-color);
+      color: white;
       text-align: left;
+      padding: 12px;
       font-size: 14px;
     }
-    th {
-      background: #f2f2f7;
-      color: #515154;
+
+    .rate-table td {
+      padding: 12px;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 14px;
+    }
+
+    .rate-table tr:nth-child(even) {
+      background-color: #fafafa;
+    }
+
+    /* Buttons */
+    .actions {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-bottom: 40px;
+    }
+
+    .btn {
+      padding: 12px 30px;
+      border-radius: 4px;
       font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: none;
+      font-size: 16px;
     }
-    td {
-      border-top: 1px solid #e5e5ea;
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: white;
     }
-    .highlight {
-      color: #34c759;
-      font-weight: 600;
+
+    .btn-primary:hover {
+      background-color: var(--secondary-color);
+      transform: translateY(-1px);
     }
-    .details {
+
+    .btn-export {
+      background-color: var(--accent-color);
+      color: white;
+    }
+
+    .btn-export:hover {
+      background-color: #b71c1c;
+      transform: translateY(-1px);
+    }
+
+    /* Results Display */
+    .result-card {
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      margin-bottom: 30px;
+      overflow: hidden;
+    }
+
+    .result-header {
+      background: #eee;
+      padding: 15px 20px;
+      font-weight: bold;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .comparison-table th {
+      background: #f8f9fa;
+      padding: 15px;
+      text-align: left;
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    .comparison-table td {
+      padding: 15px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .savings-row {
+      background-color: #e8f5e9;
+      font-weight: bold;
+      color: var(--success-color);
+      font-size: 18px;
+    }
+
+    .highlight-val {
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+
+    .footer-note {
+      margin-top: 40px;
       font-size: 12px;
-      color: #86868b;
-      line-height: 1.4;
-      margin-top: 5px;
-    }
-    .hint {
-      font-size: 11px;
-      color: #86868b;
-      margin-top: 2px;
-    }
-    .rate {
-      font-size: 16px;
-      font-weight: 500;
-    }
-    p {
-      font-size: 16px;
-      margin-bottom: 10px;
-    }
-    .translation {
-      margin-top: 20px;
+      color: #777;
+      border-top: 1px solid var(--border-color);
       padding-top: 20px;
-      border-top: 1px solid #e5e5ea;
     }
-    .translation table {
-      margin-top: 10px;
-    }
-    #exportBtn {
-      display: block;
-      margin: 20px auto;
-    }
-    .input-table input[type="number"] {
-      width: 100px;
-      margin: 0;
-    }
-    .input-table input[type="checkbox"] {
-      margin-right: 10px;
+
+    @media print {
+      body { background: white; padding: 0; }
+      .container { box-shadow: none; width: 100%; max-width: 100%; }
+      .actions, .input-section { display: none; }
     }
   </style>
 </head>
 <body>
-  <h1>Transaction Fee Comparison Calculator</h1>
 
-  <!-- General Inputs -->
-  <div class="section">
-    <h2>General Inputs</h2>
-    <label>Merchant Name:</label>
-    <input type="text" id="merchantName" placeholder="e.g., ABC Restaurant"><br>
-    <label>Daily Credit Card GMV ($):</label>
-    <input type="number" id="gmv" value="10000"><br>
+<div class="container" id="quotation-content">
+  <div class="header">
+    <div class="company-info">
+      <h1>OpenRice</h1>
+      <p>專業支付解決方案方案報價<br>Professional Payment Solution Proposal</p>
+    </div>
+    <div class="quotation-label">
+      <h2>QUOTATION</h2>
+      <p>日期 Date: <span id="current-date"></span></p>
+    </div>
   </div>
 
-  <!-- Rate Input Table -->
-  <div class="section">
-    <h2>Rates & Ratios</h2>
-    <table class="input-table">
-      <tr>
-        <th>Category</th>
-        <th>OpenRice Rate (%)</th>
-        <th>Payment Vendor Local Card Rate (%)</th>
-      </tr>
-      <tr>
-        <td><input type="checkbox" id="smeCheck" checked> SME Rate</td>
-        <td><input type="number" step="0.01" id="smeRate" value="1.5"></td>
-        <td><input type="number" step="0.01" id="localSmeRate" value="1.3"></td>
-      </tr>
-      <tr>
-        <td><input type="checkbox" id="dineinCheck" checked> Dine-in Rate</td>
-        <td><input type="number" step="0.01" id="dineinRate" value="2"></td>
-        <td><input type="number" step="0.01" id="localDineinRate" value="2.1"></td>
-      </tr>
-      <tr>
-        <td><input type="checkbox" id="fastfoodCheck" checked> Fast Food Rate</td>
-        <td><input type="number" step="0.01" id="fastfoodRate" value="1.7"></td>
-        <td><input type="number" step="0.01" id="localFastfoodRate" value="1.5"></td>
-      </tr>
-      <tr>
-        <td colspan="2">Payment Vendor Oversea Card Rate (%):</td>
-        <td><input type="number" step="0.01" id="overseaRate" value="3"></td>
-      </tr>
-      <tr>
-        <td colspan="2">Local Card Ratio (%):</td>
-        <td><input type="number" step="0.01" id="localRatio" value="70"></td>
-      </tr>
-      <tr>
-        <td colspan="2">Oversea Card Ratio (%):</td>
-        <td><input type="number" step="0.01" id="overseaRatio" value="30"></td>
-      </tr>
+  <div class="input-section">
+    <div class="input-grid">
+      <div class="form-group">
+        <label>商家名稱 Merchant Name</label>
+        <input type="text" id="merchantName" placeholder="例如：ABC 餐廳">
+      </div>
+      <div class="form-group">
+        <label>每日信用卡營業額 (GMV $)</label>
+        <input type="number" id="gmv" value="10000">
+      </div>
+    </div>
+
+    <h3 style="margin-top: 25px; font-size: 16px;">費率與比例設定 Rates & Ratios</h3>
+    <table class="rate-table">
+      <thead>
+        <tr>
+          <th>類別 Category</th>
+          <th>OpenRice 費率 (%)</th>
+          <th>現有供應商本地卡費率 (%)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><input type="checkbox" id="smeCheck" checked> 中小企費率 (SME)</td>
+          <td><input type="number" step="0.01" id="smeRate" value="1.5"></td>
+          <td><input type="number" step="0.01" id="localSmeRate" value="1.3"></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" id="dineinCheck" checked> 堂食費率 (Dine-in)</td>
+          <td><input type="number" step="0.01" id="dineinRate" value="2"></td>
+          <td><input type="number" step="0.01" id="localDineinRate" value="2.1"></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" id="fastfoodCheck" checked> 快餐費率 (Fast Food)</td>
+          <td><input type="number" step="0.01" id="fastfoodRate" value="1.7"></td>
+          <td><input type="number" step="0.01" id="localFastfoodRate" value="1.5"></td>
+        </tr>
+      </tbody>
     </table>
+
+    <div class="input-grid">
+      <div class="form-group">
+        <label>現有供應商海外卡費率 (%)</label>
+        <input type="number" step="0.01" id="overseaRate" value="3">
+      </div>
+      <div class="form-group">
+        <label>本地卡比例 (%)</label>
+        <input type="number" step="0.01" id="localRatio" value="70">
+      </div>
+    </div>
   </div>
 
-  <button onclick="calculateAll()">Calculate</button>
-  <button id="exportBtn" onclick="exportToPDF()">Export to PDF</button>
-
-  <!-- Results -->
-  <div class="section">
-    <h2>SME Rate Comparison / 中小企費率比較</h2>
-    <div id="smeResults"></div>
-  </div>
-  <div class="section">
-    <h2>Dine-in Rate Comparison / 堂食費率比較</h2>
-    <div id="dineinResults"></div>
-  </div>
-  <div class="section">
-    <h2>Fast Food Rate Comparison / 快餐費率比較</h2>
-    <div id="fastfoodResults"></div>
+  <div class="actions">
+    <button class="btn btn-primary" onclick="calculateAll()">更新計算 Update Calculation</button>
+    <button class="btn btn-export" onclick="exportToPDF()">匯出 PDF 報價單 Export PDF</button>
   </div>
 
-  <script>
-    function calculate(gmv, proposedRate, localRate, overseaRate, localRatio, overseaRatio) {
-      proposedRate = proposedRate / 100;
-      localRate = localRate / 100;
-      overseaRate = overseaRate / 100;
-      localRatio = localRatio / 100;
-      overseaRatio = overseaRatio / 100;
+  <div id="results-container">
+    <!-- Results will be injected here -->
+  </div>
 
-      const dailyMDR = gmv * proposedRate;
-      const annualMDR = dailyMDR * 365;
-      const localCharge = gmv * localRatio * localRate;
-      const overseaCharge = gmv * overseaRatio * overseaRate;
-      const competitorDailyMDR = localCharge + overseaCharge;
-      const competitorAnnualMDR = competitorDailyMDR * 365;
-      const savings = competitorAnnualMDR - annualMDR;
+  <div class="footer-note">
+    <p>* 此報價單僅供參考，最終費率以合約為準。<br>
+    * This quotation is for reference only. Final rates are subject to the formal agreement.</p>
+  </div>
+</div>
 
-      const blendedRate = (localRate * localRatio + overseaRate * overseaRatio) * 100;
+<script>
+  // Set current date
+  document.getElementById('current-date').innerText = new Date().toLocaleDateString();
 
-      return {
-        dailyMDR: dailyMDR.toFixed(2),
-        annualMDR: annualMDR.toFixed(2),
-        competitorDailyMDR: competitorDailyMDR.toFixed(2),
-        competitorAnnualMDR: competitorAnnualMDR.toFixed(2),
-        savings: savings.toFixed(2),
-        proposedRate: (proposedRate * 100).toFixed(2),
-        blendedRate: blendedRate.toFixed(2),
-        localRate: (localRate * 100).toFixed(2),
-        overseaRate: (overseaRate * 100).toFixed(2),
-        localRatio: (localRatio * 100).toFixed(2),
-        overseaRatio: (overseaRatio * 100).toFixed(2)
-      };
-    }
+  function calculate(gmv, proposedRate, localRate, overseaRate, localRatio) {
+    const overseaRatio = 100 - localRatio;
+    
+    const pRate = proposedRate / 100;
+    const lRate = localRate / 100;
+    const oRate = overseaRate / 100;
+    const lRatio = localRatio / 100;
+    const oRatio = overseaRatio / 100;
 
-    function generateTable(gmv, result, category, merchantName) {
-      const blendedRateDetailsEn = `
-        <div class="details">
-          <div>Local Card Rate ${result.localRate}% × Local Card Ratio ${result.localRatio}%</div>
-          <div>Oversea Card Rate ${result.overseaRate}% × Oversea Card Ratio ${result.overseaRatio}%</div>
+    const dailyMDR = gmv * pRate;
+    const annualMDR = dailyMDR * 365;
+    
+    const competitorDailyMDR = (gmv * lRatio * lRate) + (gmv * oRatio * oRate);
+    const competitorAnnualMDR = competitorDailyMDR * 365;
+    const savings = competitorAnnualMDR - annualMDR;
+
+    const blendedRate = (lRate * lRatio + oRate * oRatio) * 100;
+
+    return {
+      dailyMDR: dailyMDR.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}),
+      annualMDR: annualMDR.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}),
+      competitorDailyMDR: competitorDailyMDR.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}),
+      competitorAnnualMDR: competitorAnnualMDR.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}),
+      savings: savings.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}),
+      proposedRate: proposedRate.toFixed(2),
+      blendedRate: blendedRate.toFixed(2),
+      localRate: localRate.toFixed(2),
+      overseaRate: overseaRate.toFixed(2),
+      localRatio: localRatio.toFixed(2),
+      overseaRatio: overseaRatio.toFixed(2)
+    };
+  }
+
+  function generateResultHTML(title, gmv, result) {
+    return `
+      <div class="result-card">
+        <div class="result-header">
+          <span>${title} 比較分析</span>
+          <span>每日 GMV: $${Number(gmv).toLocaleString()}</span>
         </div>
-      `;
-      const blendedRateDetailsCn = `
-        <div class="details">
-          <div>本地卡費率 ${result.localRate}% × 本地卡比例 ${result.localRatio}%</div>
-          <div>海外卡費率 ${result.overseaRate}% × 海外卡比例 ${result.overseaRatio}%</div>
-        </div>
-      `;
-
-      return `
-        <!-- English Version -->
-        <p>Merchant Name: ${merchantName || 'N/A'}</p>
-        <p>Daily Credit Card GMV: $${gmv.toLocaleString()}</p>
-        <table>
-          <tr>
-            <th>Metric</th>
-            <th>OpenRice</th>
-            <th>Current Payment Vendor</th>
-          </tr>
-          <tr>
-            <td>Rate (%)</td>
-            <td>
-              <div class="rate">${result.proposedRate}%</div>
-              <div class="hint">Same charge rate for local & overseas cards</div>
-            </td>
-            <td>
-              <div class="rate">${result.blendedRate}%</div>
-              ${blendedRateDetailsEn}
-            </td>
-          </tr>
-          <tr>
-            <td>Daily MDR Charge ($)</td>
-            <td>$${result.dailyMDR}</td>
-            <td>$${result.competitorDailyMDR}</td>
-          </tr>
-          <tr>
-            <td>Annual MDR Charge ($)</td>
-            <td>$${result.annualMDR}</td>
-            <td>$${result.competitorAnnualMDR}</td>
-          </tr>
-          <tr>
-            <td>Merchant Saves ($/yr)</td>
-            <td colspan="2" class="highlight">$${result.savings}</td>
-          </tr>
-        </table>
-
-        <!-- Traditional Chinese Translation -->
-        <div class="translation">
-          <p>商家名稱: ${merchantName || '無'}</p>
-          <p>信用卡營業額日GMV: $${gmv.toLocaleString()}</p>
-          <table>
+        <table class="comparison-table">
+          <thead>
             <tr>
-              <th>指標</th>
-              <th>OpenRice</th>
-              <th>現在支付供應商</th>
+              <th>比較項目 Metric</th>
+              <th>OpenRice (建議方案)</th>
+              <th>現有供應商 (預估)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>有效費率 Effective Rate</td>
+              <td><span class="highlight-val">${result.proposedRate}%</span><br><small style="color:#888">本地及海外卡統一費率</small></td>
+              <td><span class="highlight-val">${result.blendedRate}%</span><br><small style="color:#888">本地 ${result.localRate}% / 海外 ${result.overseaRate}%</small></td>
             </tr>
             <tr>
-              <td>費率 (%)</td>
-              <td>
-                <div class="rate">${result.proposedRate}%</div>
-                <div class="hint">本地及海外卡統一費率</div>
-              </td>
-              <td>
-                <div class="rate">${result.blendedRate}%</div>
-                ${blendedRateDetailsCn}
-              </td>
-            </tr>
-            <tr>
-              <td>每日MDR費用 ($)</td>
+              <td>每日手續費 Daily Fee</td>
               <td>$${result.dailyMDR}</td>
               <td>$${result.competitorDailyMDR}</td>
             </tr>
             <tr>
-              <td>年度MDR費用 ($)</td>
+              <td>年度手續費 Annual Fee</td>
               <td>$${result.annualMDR}</td>
               <td>$${result.competitorAnnualMDR}</td>
             </tr>
-            <tr>
-              <td>商家每年節省 ($)</td>
-              <td colspan="2" class="highlight">$${result.savings}</td>
+            <tr class="savings-row">
+              <td>年度節省總額 Annual Savings</td>
+              <td colspan="2" style="text-align: center;">$${result.savings} HKD</td>
             </tr>
-          </table>
-        </div>
-      `;
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  function calculateAll() {
+    const merchantName = document.getElementById("merchantName").value || "尊貴客戶";
+    const gmv = Number(document.getElementById("gmv").value) || 0;
+    const overseaRate = Number(document.getElementById("overseaRate").value) || 0;
+    const localRatio = Number(document.getElementById("localRatio").value) || 0;
+
+    let html = `<p style="margin-bottom: 20px;"><strong>致 ${merchantName}:</strong><br>感謝您對 OpenRice 支付解決方案的關注。以下是根據您的營業額所做的成本節省分析：</p>`;
+
+    if (document.getElementById("smeCheck").checked) {
+      const res = calculate(gmv, Number(document.getElementById("smeRate").value), Number(document.getElementById("localSmeRate").value), overseaRate, localRatio);
+      html += generateResultHTML("中小企 (SME) 方案", gmv, res);
+    }
+    if (document.getElementById("dineinCheck").checked) {
+      const res = calculate(gmv, Number(document.getElementById("dineinRate").value), Number(document.getElementById("localDineinRate").value), overseaRate, localRatio);
+      html += generateResultHTML("堂食 (Dine-in) 方案", gmv, res);
+    }
+    if (document.getElementById("fastfoodCheck").checked) {
+      const res = calculate(gmv, Number(document.getElementById("fastfoodRate").value), Number(document.getElementById("localFastfoodRate").value), overseaRate, localRatio);
+      html += generateResultHTML("快餐 (Fast Food) 方案", gmv, res);
     }
 
-    function calculateAll() {
-      const merchantName = document.getElementById("merchantName").value;
-      const gmv = Number(document.getElementById("gmv").value) || 0;
+    document.getElementById("results-container").innerHTML = html;
+  }
 
-      const smeCheck = document.getElementById("smeCheck").checked;
-      const dineinCheck = document.getElementById("dineinCheck").checked;
-      const fastfoodCheck = document.getElementById("fastfoodCheck").checked;
+  function exportToPDF() {
+    const merchantName = document.getElementById("merchantName").value || "Merchant";
+    const element = document.getElementById("quotation-content");
+    
+    // Temporarily hide inputs and buttons for clean PDF
+    const inputs = document.querySelector('.input-section');
+    const actions = document.querySelector('.actions');
+    inputs.style.display = 'none';
+    actions.style.display = 'none';
 
-      const smeRate = Number(document.getElementById("smeRate").value) || 0;
-      const dineinRate = Number(document.getElementById("dineinRate").value) || 0;
-      const fastfoodRate = Number(document.getElementById("fastfoodRate").value) || 0;
-      const localSmeRate = Number(document.getElementById("localSmeRate").value) || 0;
-      const localDineinRate = Number(document.getElementById("localDineinRate").value) || 0;
-      const localFastfoodRate = Number(document.getElementById("localFastfoodRate").value) || 0;
-      const overseaRate = Number(document.getElementById("overseaRate").value) || 0;
-      const localRatio = Number(document.getElementById("localRatio").value) || 0;
-      const overseaRatio = Number(document.getElementById("overseaRatio").value) || 0;
+    const opt = {
+      margin: [0.5, 0.5],
+      filename: `Quotation_${merchantName}_${new Date().toISOString().slice(0,10)}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+    };
 
-      document.getElementById("smeResults").innerHTML = smeCheck
-        ? generateTable(gmv, calculate(gmv, smeRate, localSmeRate, overseaRate, localRatio, overseaRatio), "SME", merchantName)
-        : "";
-      document.getElementById("dineinResults").innerHTML = dineinCheck
-        ? generateTable(gmv, calculate(gmv, dineinRate, localDineinRate, overseaRate, localRatio, overseaRatio), "Dine-in", merchantName)
-        : "";
-      document.getElementById("fastfoodResults").innerHTML = fastfoodCheck
-        ? generateTable(gmv, calculate(gmv, fastfoodRate, localFastfoodRate, overseaRate, localRatio, overseaRatio), "Fast Food", merchantName)
-        : "";
-    }
+    html2pdf().set(opt).from(element).save().then(() => {
+      // Restore visibility
+      inputs.style.display = 'block';
+      actions.style.display = 'flex';
+    });
+  }
 
-    function exportToPDF() {
-      const merchantName = document.getElementById("merchantName").value || "Merchant";
-      const element = document.createElement("div");
-      element.innerHTML = `
-        <h1 style="text-align: center;">Transaction Fee Comparison Report for ${merchantName}</h1>
-        ${document.getElementById("smeResults").innerHTML}
-        ${document.getElementById("dineinResults").innerHTML}
-        ${document.getElementById("fastfoodResults").innerHTML}
-      `;
+  // Initial calculation
+  calculateAll();
+</script>
 
-      const opt = {
-        margin: 0.5,
-        filename: `${merchantName}_Transaction_Fee_Comparison.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-      };
-
-      html2pdf().set(opt).from(element).save();
-    }
-  </script>
 </body>
 </html>
